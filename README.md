@@ -64,7 +64,7 @@ It showcases the **end-to-end thinking of a Data Engineer** — from API ingesti
 5. **Snowpipe** (Load) auto-ingests into Snowflake tables  
 6. **BI Tools** query Snowflake for analysis
 
-![Spotify AWS Snowflake Architecture](images/architecture.png)
+![Spotify AWS Snowflake Architecture](images/architecture_diagram.png)
 
 ---
 
