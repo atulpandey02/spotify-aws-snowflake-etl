@@ -41,6 +41,16 @@ It showcases the **end-to-end thinking of a Data Engineer** — from API ingesti
 - **Format:** Raw JSON extracted from Spotify playlists.
 
 ---
+## Tech Stack
+| Layer | Technology | Purpose |
+|-------|------------|---------|
+| Extraction | AWS Lambda + Spotify API | Data ingestion |
+| Storage | Amazon S3 | Data lake (raw/transformed zones) |
+| Transformation | AWS Glue + PySpark | ETL processing |
+| Loading | Snowpipe | Automated data loading |
+| Analytics | Snowflake + BI Tools | Data warehousing & visualization |
+
+---
 
 ## Key Features
 - **S3 Two-Zone Structure**:  
@@ -80,7 +90,7 @@ It showcases the **end-to-end thinking of a Data Engineer** — from API ingesti
 
 ---
 
-## 🔄 Workflow Overview
+##  Workflow Overview
 
 ### 1. Ingestion Layer (Raw Zone)
 - **Trigger:** CloudWatch Event every minute
@@ -161,7 +171,7 @@ ORDER BY release_year;
 
 ---
 
-## 🚨 Error Handling & Recovery
+## Error Handling & Recovery
 
 ### Common Issues & Fixes
 - **Spotify rate limits** — Implement exponential backoff/retry.
@@ -183,7 +193,7 @@ ORDER BY release_year;
   ));
 
 ---
-## 💰 Cost Optimization
+## Cost Optimization
 - **Avoid reprocessing:** Enable Glue job bookmarks / partitioned reads.
 - **Archive cold data:** Use S3 lifecycle policies to transition/expire older `raw_data/` and `processed/` objects.
 - **Right-size Snowflake:** Choose a small warehouse; enable auto-suspend/auto-resume.
