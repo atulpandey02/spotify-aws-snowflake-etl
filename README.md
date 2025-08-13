@@ -161,6 +161,40 @@ ORDER BY release_year;
 
 ---
 
+## 🚨 Error Handling & Recovery
+
+### Common Issues & Fixes
+- **Spotify rate limits** — Implement exponential backoff/retry.
+- **S3 `AccessDenied`** — Validate IAM role permissions and bucket policy for the target prefixes.
+- **Glue schema errors** — Inspect CloudWatch logs; enforce explicit schema casting in transforms.
+- **Snowpipe not loading** — Verify stage path/prefix and CSV file format (headers, NULL handling).
+
+### Recovery Workflow
+- **Re-run safety:** Unprocessed files remain in `raw_data/to_processed/` for manual or automated retry.
+- **Lineage:** Raw inputs are archived in `raw_data/processed/` after successful transformation.
+- **Load audit (Snowflake `COPY_HISTORY`):**
+  
+  ```sql
+  -- Last 24 hours of COPY activity for the songs table
+  SELECT *
+  FROM TABLE(INFORMATION_SCHEMA.COPY_HISTORY(
+      TABLE_NAME => 'SPOTIFY_DB.PUBLIC.TBL_SONGS',
+      START_TIME => DATEADD('hour', -24, CURRENT_TIMESTAMP())
+  ));
+
+---
+## 💰 Cost Optimization
+- **Avoid reprocessing:** Enable Glue job bookmarks / partitioned reads.
+- **Archive cold data:** Use S3 lifecycle policies to transition/expire older `raw_data/` and `processed/` objects.
+- **Right-size Snowflake:** Choose a small warehouse; enable auto-suspend/auto-resume.
+- **Batch wisely:** Prefer scheduled batches over per-minute triggers when business allows.
+
+> Snowflake autosuspend example:
+```sql
+ALTER WAREHOUSE ANALYTICS_WH SET AUTO_SUSPEND = 60 AUTO_RESUME = TRUE;
+```
+---
+
 ## Repository Structure
 ```
 ├── extraction/spotify_api_data_extract.py             # AWS Lambda extraction script
@@ -192,6 +226,13 @@ ORDER BY release_year;
 4. **Configure Snowflake**:
    - Run `sql/Spotify_snowflake.sql` to create stages, tables, and Snowpipes
 5. **Connect BI Tool** to Snowflake
+
+---
+
+## Troubleshooting
+- Snowpipe shows “skipped” files → file format mismatch (header/NULL) or wrong stage path
+- Glue “Access Denied” → job role lacks S3 permissions to both raw + transformed prefixes
+- Lambda OK locally, fails in AWS → missing env vars or VPC blocking outbound internet
 
 ---
 
