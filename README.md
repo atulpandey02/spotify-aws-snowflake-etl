@@ -15,6 +15,16 @@ The pipeline simulates a **real-world, production-grade music analytics workflow
 
 ---
 
+## Quickstart
+1. Create S3 paths: s3://<bucket>/{raw_data/to_processed,raw_data/processed,transformed_data}
+2. Deploy Lambda (`extraction/spotify_api_data_extract.py`) and set env:
+   SPOTIPY_CLIENT_ID, SPOTIPY_CLIENT_SECRET, SPOTIPY_REDIRECT_URI, S3_BUCKET
+3. Create a Glue job with `transformation/spotify_transformation.py` (IAM role with S3 access).
+4. In Snowflake, run `sql/Spotify_snowflake.sql` (integration, stage, tables, Snowpipes).
+5. Trigger Lambda → see CSVs in `transformed_data/` → query tables in Snowflake.
+
+---
+
 ## Motivation
 The primary goal was to build a **scalable, fully automated ETL pipeline** leveraging AWS serverless services to ingest, transform, and deliver data into Snowflake for analytics.  
 
@@ -64,7 +74,9 @@ It showcases the **end-to-end thinking of a Data Engineer** — from API ingesti
 5. **Snowpipe** (Load) auto-ingests into Snowflake tables  
 6. **BI Tools** query Snowflake for analysis
 
-![Spotify AWS Snowflake Architecture](images/architecture_diagram.png)
+<p align="center">
+  <img src="images/architecture_diagram.png" alt="Spotify → AWS → Snowflake architecture" width="900">
+</p>
 
 ---
 
@@ -88,6 +100,10 @@ It showcases the **end-to-end thinking of a Data Engineer** — from API ingesti
     - `artist_data/` → CSV
   - Writes to `transformed_data/` in S3
   - Moves original JSON to `processed/` and deletes from `to_processed/`
+ 
+<p align="center">
+  <img src="images/glue-job.png" alt="AWS Glue job run success" width="900">
+</p>
 
 ---
 
@@ -122,23 +138,6 @@ It showcases the **end-to-end thinking of a Data Engineer** — from API ingesti
 - Build **real-time dashboard** with streaming ingestion  
 - Integrate with **AWS Step Functions** for orchestration  
 - Extend to more Spotify endpoints (e.g., genres, user stats)
-
----
-
-## 📷 Screenshots
-1. **S3 Folder Structure**
-   - `raw_data/` with `to_processed/` & `processed/`
-   - `transformed_data/` with CSV outputs
-2. **AWS Lambda Console**
-   - Function configuration & CloudWatch triggers
-3. **AWS Glue Job Run**
-   - Successful PySpark transformations
-4. **Snowflake Web UI**
-   - Loaded tables and Snowpipe status
-5. **BI Dashboard**
-   - Insights visualized from Snowflake
-
-*(Add actual screenshots in `/images` folder)*
 
 ---
 
